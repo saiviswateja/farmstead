@@ -16,8 +16,8 @@ public class UserController {
         return userService.saveUser(user);
     }
     
-    @GetMapping("/user")
-    public User getUserByEmail(@RequestBody User user) {
-        return userService.getUserWithEmailAddress(user.getEmailAddress());
+    @GetMapping("/user/{email}")
+    public User getUserByEmail(@PathVariable("email") String emailAddress) {
+        return userService.getUserWithEmailAddress(emailAddress);
     }
 }
