@@ -39,4 +39,6 @@ public class OrderSummary {
     private String emailAddress;
 
     private String shipPhoneNumber;
+
+    private String orderId;
 }
