@@ -21,7 +21,7 @@ public class JWTHelper {
 
     public boolean isTokenValid(String token) {
         try {
-            Algorithm algorithm = Algorithm.HMAC256("secret");
+            Algorithm algorithm = Algorithm.HMAC256("secret-token");
             JWTVerifier verifier = JWT.require(algorithm)
                     .withIssuer("auth0")
                     .build();
