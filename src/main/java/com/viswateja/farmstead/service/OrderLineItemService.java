@@ -6,6 +6,7 @@ import com.viswateja.farmstead.entity.OrderSummary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -20,5 +21,10 @@ public class OrderLineItemService {
 
     public List<OrderLineItem> retrieveOrderLineItemsByOrdersummaryFk(OrderSummary orderSummary) {
         return orderLineItemRepository.getOrdersByOrderId(orderSummary.getOrderSummaryPk());
+    }
+
+    public void shipOrders() {
+        System.out.println("Shipping orders" + new Date().getTime());
+        orderLineItemRepository.shipOrders();
     }
 }
