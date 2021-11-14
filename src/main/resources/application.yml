@@ -1,0 +1,13 @@
+cloud:
+  aws:
+    credentials:
+      access-key: AKIAZKLSP3C4E5XHYLU2
+      secret-key: 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
+    region:
+      static: us-east-1
+    stack:
+      auto: false
+
+application:
+  bucket:
+    name: farm-stead

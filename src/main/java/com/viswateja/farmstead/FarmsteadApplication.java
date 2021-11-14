@@ -2,8 +2,6 @@ package com.viswateja.farmstead;
 
 import com.viswateja.farmstead.Filter.AuthorisationFilter;
 import com.viswateja.farmstead.helper.OrderShippingJob;
-import org.quartz.*;
-import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -12,7 +10,7 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class FarmsteadApplication {
 
-	public static void main(String[] args) throws SchedulerException {
+	public static void main(String[] args) {
 		SpringApplication.run(FarmsteadApplication.class, args);
 	}
 
