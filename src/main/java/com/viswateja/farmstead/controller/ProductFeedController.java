@@ -10,6 +10,6 @@ public class ProductFeedController {
     private ProductFeed productFeed;
 
     public void runProductFeed() {
-        productFeed.run();g
+        productFeed.run();
     }
 }
