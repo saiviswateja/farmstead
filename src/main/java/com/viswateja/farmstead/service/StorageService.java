@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.exceptions.CsvValidationException;
+import com.viswateja.farmstead.entity.Product;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,7 @@ public class StorageService {
         return "File Uploaded";
     }
 
-    public List<Map<String, String>> downloadFile(String fileName) {
+    public List<Product> downloadFile(String fileName) {
 //        S3Object s3Object = s3Client.getObject(bucketName, fileName);
 //        S3ObjectInputStream inputStream = s3Object.getObjectContent();
 //        try {
@@ -55,18 +56,25 @@ public class StorageService {
         CSVReaderHeaderAware csvReader = (CSVReaderHeaderAware) new CSVReaderHeaderAwareBuilder(br)
                 .withCSVParser(parser)
                 .build();
+        List<Product> products = new ArrayList<>();
         List<Map<String, String>> records = new ArrayList<>();
         try (CSVReaderHeaderAware reader = csvReader) {
             Map<String, String> values;
 
             while ((values = reader.readMap()) != null) {
                 records.add(values);
+                products.add(Product.builder()
+                        .sku(values.get("sku"))
+                        .name(values.get("name"))
+                        .cost(Integer.parseInt(values.get("cost")))
+                        .msrp(Integer.parseInt(values.get("msrp")))
+                        .build());
             }
-            return records;
+            return products;
         } catch (IOException | CsvValidationException e) {
             e.printStackTrace();
         }
-        return records;
+        return null;
     }
 
     public String deleteFile(String fileName) {

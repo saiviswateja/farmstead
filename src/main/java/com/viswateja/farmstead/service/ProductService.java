@@ -25,4 +25,8 @@ public class ProductService {
     public Optional<Product> retrieveProductById(Long id) {
         return productRepository.findById(id);
     }
+
+    public void updateProductStatusBySku(String sku, Integer status) {
+        productRepository.updateStatusBySku(sku, status);
+    }
 }
