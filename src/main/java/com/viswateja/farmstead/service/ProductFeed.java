@@ -1,16 +1,11 @@
 package com.viswateja.farmstead.service;
 
-import com.opencsv.CSVWriter;
-import com.viswateja.farmstead.Repository.ProductRepository;
 import com.viswateja.farmstead.entity.Product;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
-import java.io.FileNotFoundException;
-import java.io.UnsupportedEncodingException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class ProductFeed {
@@ -21,22 +16,55 @@ public class ProductFeed {
     @Autowired
     private ProductService productService;
 
-    public void run() throws UnsupportedEncodingException, FileNotFoundException {
-        List<Map<String, String>> productsList = storageService.downloadFile("products.csv");
+    public void run() {
+        HashMap<String, Product> productsFromCloud = new HashMap<>();
 
-        Iterator<Map<String, String>> productIterator = productsList.iterator();
-        while(productIterator.hasNext()) {
-            Map<String, String> product = productIterator.next();
-            productService.addProduct(
-                    Product.builder()
-                            .cost(Integer.parseInt(product.get("cost")))
-                            .msrp(Integer.parseInt(product.get("msrp")))
-                            .name(product.get("name"))
-                            .status(0)
-                            .sku(product.get("sku"))
-                            .softwarePrice(Integer.parseInt(product.get("msrp")))
-                            .build()
-            );
-        }
+        List<Product> productsList = storageService.downloadFile("products.csv");
+        List<Product> oldProductsFromDb = productService.retrieveProducts();
+
+        productsList.forEach(product -> {
+            productsFromCloud.put(product.getSku(), product);
+        });
+
+        List<Product> updatedProducts = new ArrayList<>();
+        List<Product> removedProducts = new ArrayList<>();
+        List<Product> newProducts = new ArrayList<>();
+
+        oldProductsFromDb.forEach(product -> {
+            if (productsFromCloud.containsKey(product.getSku())) {
+                Product currentProduct = productsFromCloud.get(product.getSku());
+                if (product.getStatus() == 0) {
+                    newProducts.add(product);
+                } else {
+                    if (!product.getName().equals(currentProduct.getName()) || !product.getMsrp().equals(currentProduct.getMsrp())
+                            || !product.getCost().equals(currentProduct.getCost())) {
+                        updatedProducts.add(product);
+                    }
+                }
+                productsFromCloud.remove(product.getSku());
+            } else {
+                removedProducts.add(product);
+            }
+        });
+
+        newProducts.addAll(productsFromCloud.values());
+
+        newProducts.forEach(product -> productService.addProduct(
+                Product.builder()
+                        .cost(product.getCost())
+                        .msrp(product.getMsrp())
+                        .name(product.getName())
+                        .status(1)
+                        .softwarePrice(product.getMsrp())
+                        .build()
+        ));
+
+        updatedProducts.forEach(product -> {
+            productService.updateProductStatusBySku(product.getSku(), 1);
+        });
+
+        removedProducts.forEach(product -> {
+            productService.updateProductStatusBySku(product.getSku(), 0);
+        });
     }
 }
